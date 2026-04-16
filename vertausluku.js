@@ -1,40 +1,22 @@
-// vertausluku.js
-export default function laskeVertausluvut(ehdokasLista) {
-  if (!Array.isArray(ehdokasLista) || ehdokasLista.length === 0) {
+/**
+ * Laskee D'Hondtin vertausluvut yhdelle listalle
+ * @param {Object[]} ehdokkaat - Taulukko ehdokasobjekteja
+ * @returns {Object[]} - Sama taulukko vertausluvuilla
+ */
+function laskeVertausluvut(ehdokkaat) {
+  if (!Array.isArray(ehdokkaat) || ehdokkaat.length === 0) {
     return [];
   }
 
-  const kokonaisAanimaara = ehdokasLista.reduce((sum, e) => sum + (e.aanet || 0), 0);
+  const jarjestetyt = [...ehdokkaat].sort((a, b) => b.aanet - a.aanet);
 
-  // Lasketaan vertausluku kaikille
-  let tulos = ehdokasLista.map(ehdokas => ({
+  const aanetYhteensa = jarjestetyt.reduce((sum, e) => sum + e.aanet, 0);
+
+  return jarjestetyt.map((ehdokas, index) => ({
     ...ehdokas,
-    vertausluku: Math.floor(kokonaisAanimaara / (ehdokas.aanet || 1))
+    vertausluku: aanetYhteensa / (index + 1)
   }));
-
-  // Järjestetään ensisijaisesti vertausluvun mukaan laskevasti
-  tulos.sort((a, b) => b.vertausluku - a.vertausluku);
-
-  // Käsitellään ryhmät satunnaisessa järjestyksessä
-  for (let i = 0; i < tulos.length; i++) {
-    let j = i;
-    while (j < tulos.length && tulos[j].vertausluku === tulos[i].vertausluku) {
-      j++;
-    }
-
-    if (j - i > 1) {
-      const ryhma = tulos.slice(i, j);
-      // Random 
-      for (let k = ryhma.length - 1; k > 0; k--) {
-        const rand = Math.floor(Math.random() * (k + 1));
-        [ryhma[k], ryhma[rand]] = [ryhma[rand], ryhma[k]];
-      }
-      // Merkitään arvotut
-      ryhma.forEach(e => e.arvottu = true);
-      tulos.splice(i, j - i, ...ryhma);
-    }
-    i = j - 1;
-  }
-
-  return tulos;
 }
+
+export default laskeVertausluvut;
+export { laskeVertausluvut };
